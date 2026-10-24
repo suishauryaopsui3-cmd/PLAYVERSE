@@ -4,115 +4,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PLAYVERSE - Gaming Hub</title>
+<title>PLAYVERSE</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#0b0b18;color:white;font-family:Arial,sans-serif}
-header{padding:18px;background:#15152b;position:sticky;top:0;border-bottom:1px solid #444}
-.logo{font-size:25px;font-weight:bold;color:#43e7ff}
-input{width:100%;padding:13px;margin-top:15px;border-radius:10px;border:0;font-size:16px}
-.hero{padding:35px 20px;background:linear-gradient(135deg,#282052,#12404c);text-align:center}
-h1{font-size:42px;margin:10px}
-.hero p{color:#ddd;line-height:1.6}
-button{padding:12px 16px;border:0;border-radius:10px;background:#43e7ff;color:#101020;font-weight:bold;cursor:pointer}
-main{padding:18px;max-width:1100px;margin:auto}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
-.filters button{background:#24243c;color:white}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.card{background:#17172c;border:1px solid #33334c;border-radius:15px;overflow:hidden;text-align:center;padding-bottom:15px}
-.art{font-size:55px;padding:25px 5px;background:linear-gradient(135deg,#282052,#153344)}
-.card h3{margin:12px 5px 6px}
-.card p{color:#bbb;font-size:13px;padding:0 8px}
-.card button{width:85%}
-#playbox{display:none;position:fixed;inset:0;background:#080812f5;z-index:5;padding:20px;overflow:auto}
-.gamepanel{max-width:500px;margin:35px auto;text-align:center;background:#19192e;padding:25px;border-radius:18px}
-#target{font-size:75px;margin:25px;cursor:pointer}
-#result{font-size:20px;color:#b7ff5b;min-height:30px}
-footer{text-align:center;color:#aaa;padding:30px}
-@media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{padding:55px}}
+body{margin:0;background:#090b18;color:white;font-family:Arial;text-align:center}
+header{padding:18px;background:#17172c;color:#43e7ff;font-size:28px;font-weight:bold}
+h2{margin:12px}
+canvas{width:95%;max-width:600px;background:#10152a;border:2px solid #43e7ff;border-radius:12px;touch-action:none}
+button{padding:15px;margin:6px;border:0;border-radius:10px;background:#43e7ff;font-size:18px;font-weight:bold}
+p{color:#d7d9e8}
 </style>
 </head>
 <body>
-<header>
-<div class="logo">🎮 PLAYVERSE ✦</div>
-<input id="search" placeholder="Search your next game..." oninput="render()">
-</header>
-<section class="hero">
-<h1>PRESS PLAY.</h1>
-<h1 style="color:#ff4fd8">LOSE TRACK.</h1>
-<p>Welcome to your gaming world!<br>Choose a game and beat your high score.</p>
-<button onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">EXPLORE GAMES ↓</button>
-</section>
-<main id="games">
-<h2>🔥 Pick Your Game</h2>
-<div class="filters">
-<button onclick="category='All';render()">All Games</button>
-<button onclick="category='Arcade';render()">Arcade</button>
-<button onclick="category='Puzzle';render()">Puzzle</button>
-<button onclick="category='Action';render()">Action</button>
-<button onclick="category='Casual';render()">Casual</button>
-</div>
-<div class="grid" id="grid"></div>
-</main>
-<footer>PLAYVERSE ✦ Made for fun</footer>
-
-<div id="playbox">
-<div class="gamepanel">
-<button onclick="closeGame()" style="float:right">✕ Close</button>
-<h2 id="gameTitle">Game</h2>
-<p id="instructions">Tap the emoji to score points!</p>
-<div id="target" onclick="scorePoint()">🎯</div>
-<div id="result">Score: 0</div>
-<button onclick="startGame()">Restart Game</button>
-</div>
-</div>
-
+<header>🎮 PLAYVERSE</header>
+<h2>🦘 Neon Jumper</h2>
+<p>Jump over the red obstacles and collect points!</p>
+<canvas id="c" width="600" height="400"></canvas>
+<h3 id="score">Score: 0</h3>
+<button id="left">⬅️</button>
+<button id="jump">⬆️ JUMP</button>
+<button id="right">➡️</button>
+<br><button onclick="restart()">🔄 Restart</button>
 <script>
-const games=[
-{name:"Neon Jumper",emoji:"🦘",cat:"Arcade",desc:"Jump into the action!"},
-{name:"Memory Match",emoji:"🧠",cat:"Puzzle",desc:"Test your memory!"},
-{name:"Reflex Rush",emoji:"⚡",cat:"Arcade",desc:"Test your reaction speed!"},
-{name:"Cookie Clicker",emoji:"🍪",cat:"Casual",desc:"Tap to collect cookies!"},
-{name:"Tic-Tac-Toe",emoji:"⭕",cat:"Puzzle",desc:"Play a quick challenge!"},
-{name:"Star Collector",emoji:"🌟",cat:"Casual",desc:"Collect shining stars!"},
-{name:"Zombie Survival",emoji:"🧟",cat:"Action",desc:"Survive the zombie zone!"},
-{name:"Cycle Rush",emoji:"🚴",cat:"Arcade",desc:"Race to the finish!"},
-{name:"Sky Pilot",emoji:"✈️",cat:"Action",desc:"Take off on an adventure!"},
-{name:"Meteor Dodge",emoji:"☄️",cat:"Action",desc:"Avoid falling meteors!"}
-];
-let category="All",current=null,score=0;
-function render(){
-const q=document.getElementById("search").value.toLowerCase();
-const list=games.filter(g=>(category==="All"||g.cat===category)&&g.name.toLowerCase().includes(q));
-document.getElementById("grid").innerHTML=list.map(g=>`
-<div class="card">
-<div class="art">${g.emoji}</div>
-<h3>${g.name}</h3><p>${g.desc}</p>
-<button onclick="openGame('${g.name}')">▶ PLAY NOW</button>
-</div>`).join("");
+const c=document.getElementById("c"),x=c.getContext("2d");
+let p,obs,score,over,keys,frame;
+function restart(){
+p={x:100,y:300,vy:0};obs=[];score=0;over=false;keys={};frame=0;
+document.getElementById("score").textContent="Score: 0";
 }
-function openGame(name){
-current=games.find(g=>g.name===name);
-document.getElementById("playbox").style.display="block";
-document.getElementById("gameTitle").textContent=current.emoji+" "+current.name;
-document.getElementById("instructions").textContent="Tap the emoji as many times as you can!";
-startGame();
+function down(k,v){keys[k]=v}
+function bind(id,k){
+let b=document.getElementById(id);
+b.onpointerdown=e=>{e.preventDefault();down(k,true)};
+b.onpointerup=b.onpointerleave=b.onpointercancel=()=>down(k,false);
 }
-function startGame(){
-score=0;
-document.getElementById("target").textContent=current.emoji;
-document.getElementById("result").textContent="Score: 0";
+bind("left","left");bind("right","right");bind("jump","jump");
+document.onkeydown=e=>{
+if(["ArrowLeft","ArrowRight","ArrowUp"," "].includes(e.key))e.preventDefault();
+if(e.key==="ArrowLeft")down("left",true);
+if(e.key==="ArrowRight")down("right",true);
+if(e.key==="ArrowUp"||e.key===" ")down("jump",true);
+};
+document.onkeyup=e=>{
+if(e.key==="ArrowLeft")down("left",false);
+if(e.key==="ArrowRight")down("right",false);
+if(e.key==="ArrowUp"||e.key===" ")down("jump",false);
+};
+function draw(){
+x.clearRect(0,0,600,400);
+x.fillStyle="#10152a";x.fillRect(0,0,600,400);
+x.fillStyle="#43e7ff";x.fillRect(0,350,600,8);
+x.font="32px Arial";x.fillText("🦘",p.x,p.y+30);
+x.font="26px Arial";
+obs.forEach(o=>x.fillText("🟥",o.x,o.y+25));
+x.fillStyle="white";x.font="18px Arial";x.fillText("Score: "+score,15,25);
+if(over){x.fillStyle="#ff4fd8";x.font="bold 38px Arial";x.fillText("GAME OVER!",170,180);x.font="20px Arial";x.fillText("Tap Restart to play again",170,220)}
 }
-function scorePoint(){
-score++;
-document.getElementById("result").textContent="Score: "+score+" 🎉";
-const emojis=["⭐","💎","🎯","🔥","🍀","🚀"];
-document.getElementById("target").textContent=emojis[Math.floor(Math.random()*emojis.length)];
+function step(){
+if(!over){
+frame++;
+if(keys.left)p.x-=5;if(keys.right)p.x+=5;
+p.x=Math.max(0,Math.min(560,p.x));
+if(keys.jump&&p.y>=300)p.vy=-13;
+p.vy+=0.65;p.y+=p.vy;
+if(p.y>300){p.y=300;p.vy=0}
+if(frame%65===0)obs.push({x:610,y:320});
+obs.forEach(o=>o.x-=5);
+obs=obs.filter(o=>o.x>-40);
+for(let o of obs){
+if(p.x+28>o.x+3&&p.x<o.x+28&&p.y+28>o.y){over=true}
 }
-function closeGame(){
-document.getElementById("playbox").style.display="none";
+if(frame%10===0)score++;
+document.getElementById("score").textContent="Score: "+score;
 }
-render();
+draw();requestAnimationFrame(step);
+}
+restart();step();
 </script>
 </body>
 </html>
