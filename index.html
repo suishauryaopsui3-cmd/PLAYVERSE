@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAYVERSE - Gaming Hub</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0b18;color:white;font-family:Arial,sans-serif}
+header{padding:18px;background:#15152b;position:sticky;top:0;border-bottom:1px solid #444}
+.logo{font-size:25px;font-weight:bold;color:#43e7ff}
+input{width:100%;padding:13px;margin-top:15px;border-radius:10px;border:0;font-size:16px}
+.hero{padding:35px 20px;background:linear-gradient(135deg,#282052,#12404c);text-align:center}
+h1{font-size:42px;margin:10px}
+.hero p{color:#ddd;line-height:1.6}
+button{padding:12px 16px;border:0;border-radius:10px;background:#43e7ff;color:#101020;font-weight:bold;cursor:pointer}
+main{padding:18px;max-width:1100px;margin:auto}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
+.filters button{background:#24243c;color:white}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.card{background:#17172c;border:1px solid #33334c;border-radius:15px;overflow:hidden;text-align:center;padding-bottom:15px}
+.art{font-size:55px;padding:25px 5px;background:linear-gradient(135deg,#282052,#153344)}
+.card h3{margin:12px 5px 6px}
+.card p{color:#bbb;font-size:13px;padding:0 8px}
+.card button{width:85%}
+#playbox{display:none;position:fixed;inset:0;background:#080812f5;z-index:5;padding:20px;overflow:auto}
+.gamepanel{max-width:500px;margin:35px auto;text-align:center;background:#19192e;padding:25px;border-radius:18px}
+#target{font-size:75px;margin:25px;cursor:pointer}
+#result{font-size:20px;color:#b7ff5b;min-height:30px}
+footer{text-align:center;color:#aaa;padding:30px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{padding:55px}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">🎮 PLAYVERSE ✦</div>
+<input id="search" placeholder="Search your next game..." oninput="render()">
+</header>
+<section class="hero">
+<h1>PRESS PLAY.</h1>
+<h1 style="color:#ff4fd8">LOSE TRACK.</h1>
+<p>Welcome to your gaming world!<br>Choose a game and beat your high score.</p>
+<button onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">EXPLORE GAMES ↓</button>
+</section>
+<main id="games">
+<h2>🔥 Pick Your Game</h2>
+<div class="filters">
+<button onclick="category='All';render()">All Games</button>
+<button onclick="category='Arcade';render()">Arcade</button>
+<button onclick="category='Puzzle';render()">Puzzle</button>
+<button onclick="category='Action';render()">Action</button>
+<button onclick="category='Casual';render()">Casual</button>
+</div>
+<div class="grid" id="grid"></div>
+</main>
+<footer>PLAYVERSE ✦ Made for fun</footer>
+
+<div id="playbox">
+<div class="gamepanel">
+<button onclick="closeGame()" style="float:right">✕ Close</button>
+<h2 id="gameTitle">Game</h2>
+<p id="instructions">Tap the emoji to score points!</p>
+<div id="target" onclick="scorePoint()">🎯</div>
+<div id="result">Score: 0</div>
+<button onclick="startGame()">Restart Game</button>
+</div>
+</div>
+
+<script>
+const games=[
+{name:"Neon Jumper",emoji:"🦘",cat:"Arcade",desc:"Jump into the action!"},
+{name:"Memory Match",emoji:"🧠",cat:"Puzzle",desc:"Test your memory!"},
+{name:"Reflex Rush",emoji:"⚡",cat:"Arcade",desc:"Test your reaction speed!"},
+{name:"Cookie Clicker",emoji:"🍪",cat:"Casual",desc:"Tap to collect cookies!"},
+{name:"Tic-Tac-Toe",emoji:"⭕",cat:"Puzzle",desc:"Play a quick challenge!"},
+{name:"Star Collector",emoji:"🌟",cat:"Casual",desc:"Collect shining stars!"},
+{name:"Zombie Survival",emoji:"🧟",cat:"Action",desc:"Survive the zombie zone!"},
+{name:"Cycle Rush",emoji:"🚴",cat:"Arcade",desc:"Race to the finish!"},
+{name:"Sky Pilot",emoji:"✈️",cat:"Action",desc:"Take off on an adventure!"},
+{name:"Meteor Dodge",emoji:"☄️",cat:"Action",desc:"Avoid falling meteors!"}
+];
+let category="All",current=null,score=0;
+function render(){
+const q=document.getElementById("search").value.toLowerCase();
+const list=games.filter(g=>(category==="All"||g.cat===category)&&g.name.toLowerCase().includes(q));
+document.getElementById("grid").innerHTML=list.map(g=>`
+<div class="card">
+<div class="art">${g.emoji}</div>
+<h3>${g.name}</h3><p>${g.desc}</p>
+<button onclick="openGame('${g.name}')">▶ PLAY NOW</button>
+</div>`).join("");
+}
+function openGame(name){
+current=games.find(g=>g.name===name);
+document.getElementById("playbox").style.display="block";
+document.getElementById("gameTitle").textContent=current.emoji+" "+current.name;
+document.getElementById("instructions").textContent="Tap the emoji as many times as you can!";
+startGame();
+}
+function startGame(){
+score=0;
+document.getElementById("target").textContent=current.emoji;
+document.getElementById("result").textContent="Score: 0";
+}
+function scorePoint(){
+score++;
+document.getElementById("result").textContent="Score: "+score+" 🎉";
+const emojis=["⭐","💎","🎯","🔥","🍀","🚀"];
+document.getElementById("target").textContent=emojis[Math.floor(Math.random()*emojis.length)];
+}
+function closeGame(){
+document.getElementById("playbox").style.display="none";
+}
+render();
+</script>
+</body>
+</html>
